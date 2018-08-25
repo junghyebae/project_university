@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+  
+<mapper namespace="Enrolment">
+	
+<insert id="addSubject" parameterType="SubjectDto" useGeneratedKeys="false">
+	INSERT INTO SUBJECT (SUB_SEQ, SUB_CATEGORY, MAJOR_NUMBER, SUB_GRADE, SUB_SEMESTER,
+						SUB_NAME, PROFESSOR_ID, PROFESSOR_NAME, SUB_INFO, SUB_ROOM, SUB_WEEK,
+						SUB_S_CLASS, SUB_E_CLASS, SUB_MAX_STUDENT, SUB_NOW_STUDENT, SUB_POINT,
+						SUB_REF, SUB_PARENT, SUB_STATUS)
+	VALUES (SUB_SEQ.NEXTVAL , #{sub_category}, #{major_number}, #{sub_grade}, #{sub_semester},
+			#{sub_name}, #{professor_id}, #{professor_name}, #{sub_info}, #{sub_room}, #{sub_week},
+			#{sub_s_class}, #{sub_e_class}, #{sub_max_student}, 0, #{sub_point},
+			(SELECT NVL(MAX(SUB_REF),0)+1 FROM SUBJECT), 0, '개강')
+</insert>
+
+<select id="getSublist" parameterType="java.lang.String" resultType="SubjectDto">
+	SELECT SUB_SEQ, SUB_CATEGORY, MAJOR_NUMBER, SUB_GRADE, SUB_SEMESTER,SUB_NAME,
+		   PROFESSOR_ID, PROFESSOR_NAME, SUB_INFO, SUB_ROOM, SUB_WEEK, SUB_S_CLASS,
+		   SUB_E_CLASS, SUB_MAX_STUDENT, SUB_NOW_STUDENT, SUB_POINT, SUB_REF, SUB_PARENT, SUB_STATUS
+	FROM SUBJECT
+	WHERE PROFESSOR_ID=#{id}
+	ORDER BY SUB_REF ASC, SUB_MAX_STUDENT DESC
+</select>
+
+<select id="getReg" parameterType="java.lang.Integer" resultType="SubjectDto">
+	SELECT SUB_SEQ, SUB_CATEGORY, MAJOR_NUMBER, SUB_GRADE, SUB_SEMESTER,SUB_NAME,
+		   PROFESSOR_ID, PROFESSOR_NAME, SUB_INFO, SUB_ROOM, SUB_WEEK, SUB_S_CLASS,
+		   SUB_E_CLASS, SUB_MAX_STUDENT, SUB_NOW_STUDENT, SUB_POINT, SUB_REF, SUB_PARENT, SUB_STATUS
+	FROM SUBJECT
+	WHERE SUB_SEQ=#{seq}
+</select>
+
+<insert id="addClassTime" parameterType="SubjectDto" useGeneratedKeys="false">
+	INSERT INTO SUBJECT (SUB_SEQ, SUB_CATEGORY, MAJOR_NUMBER, SUB_GRADE, SUB_SEMESTER,
+						SUB_NAME, PROFESSOR_ID, PROFESSOR_NAME, SUB_INFO, SUB_ROOM, SUB_WEEK,
+						SUB_S_CLASS, SUB_E_CLASS, SUB_MAX_STUDENT, SUB_NOW_STUDENT, SUB_POINT,
+						SUB_REF, SUB_PARENT, SUB_STATUS)
+	VALUES(SUB_SEQ.NEXTVAL, #{sub_category}, #{major_number}, #{sub_grade}, #{sub_semester},
+			#{sub_name}, #{professor_id}, #{professor_name}, #{sub_info}, #{sub_room}, #{sub_week},
+			#{sub_s_class}, #{sub_e_class}, 0, 0, #{sub_point},
+			(SELECT SUB_REF FROM SUBJECT WHERE SUB_SEQ=#{sub_seq}), #{sub_seq}, '개강')						
+</insert>
+
+<delete id="deleteReg" parameterType="java.lang.Integer">
+	DELETE FROM SUBJECT
+	WHERE SUB_SEQ=#{seq}
+</delete>
+	 
+<select id="getEnrollist" parameterType="querysub" resultType="SubjectDto">	
+	SELECT *
+	FROM SUBJECT S, (SELECT * FROM ASSESSMENT WHERE STUDENT_ID=#{user_id})A
+	WHERE S.SUB_SEQ = A.SUB_SEQ_NUM(+)
+	AND MAJOR_NUMBER=#{major}
+	AND A.SUB_SEQ_NUM IS NULL
+	ORDER BY SUB_REF ASC, SUB_MAX_STUDENT DESC
+</select>	 
+
+<update id="updateReg" parameterType="SubjectDto">
+UPDATE SUBJECT
+SET SUB_CATEGORY = #{sub_category},	
+	SUB_GRADE = #{sub_grade},
+	SUB_SEMESTER = #{sub_semester},
+	SUB_NAME = #{sub_name},
+	SUB_INFO = #{sub_info},
+	SUB_ROOM = #{sub_room},
+	SUB_WEEK = #{sub_week},
+	SUB_S_CLASS = #{sub_s_class},
+	SUB_E_CLASS = #{sub_e_class},
+	SUB_MAX_STUDENT = #{sub_max_student},
+	SUB_POINT = #{sub_point}	
+WHERE SUB_SEQ=#{sub_seq}
+</update>
+
+</mapper>
+
+
+<!-- SELECT *
+	FROM SUBJECT
+	WHERE MAJOR_NUMBER=#{major}
+	ORDER BY SUB_REF ASC, SUB_MAX_STUDENT DESC -->
+
+
+
+
+
+
+
+
+
+
+
